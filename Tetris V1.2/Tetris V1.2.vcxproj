@@ -123,10 +123,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="PartOf.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Forms.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="movent.h" />
+    <ClInclude Include="PartOf.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
