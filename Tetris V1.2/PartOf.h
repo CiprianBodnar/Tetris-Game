@@ -2,19 +2,22 @@
 #include<iostream>
 #include <SFML\Graphics.hpp>
 using namespace sf;
+using namespace std;
 class PartOf
 {
 private:
 	int shapeIndex;
 	int data[4][4], posX, posY, color;
+	int g;
 
 	void fillData()
 	{
+			
 		for (int i = 0; i < 4; i++)
 			for (int m = 0; m < 4; m++)
-				data[i][m] = Forms[shapeIndex][i][m];
+				data[i][m] = Forms[shapeIndex][g][i][m];
 	}
-
+	
 public:
 	PartOf()
 	{
@@ -25,9 +28,11 @@ public:
 
 	void generate()
 	{
+		
 		int g = (rand() % 7) * 4;
 		shapeIndex = (ShapeIndexes)g;
 		color = g / 4;
+	
 		fillData();
 	}
 
@@ -45,7 +50,7 @@ public:
 	{
 		int coIndex = shapeIndex;
 		shapeIndex = ((shapeIndex + 1) % 4 == 0 ? shapeIndex - 3 : shapeIndex + 1);
-		fillData();
+	fillData();
 		if (!isValid())
 		{
 			shapeIndex = coIndex;
@@ -71,7 +76,9 @@ public:
 			for (int m = 0; m < 4; m++)
 				if (data[i][m])
 				{
-					drawForm(window, (m + posX) * SIZE, (i + posY) * SIZE, colors[color]);
+					
+					drawForm(window, (m + 20) * SIZE, (i +20) * SIZE, colors[color]);
+					
 				}
 	}
 
