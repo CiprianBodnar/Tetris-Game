@@ -1,8 +1,8 @@
 ﻿  main.cpp
-e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\partof.h(80): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(76): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(106): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(110): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(114): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(78): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(117): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(138): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(160): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+e:\facultate\ip\tetris\tetris v1.2\tetris v1.2\main.cpp(218): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Tetris V1.2.vcxproj -> E:\Facultate\IP\TETRIS\Tetris V1.2\Debug\Tetris V1.2.exe
   Tetris V1.2.vcxproj -> E:\Facultate\IP\TETRIS\Tetris V1.2\Debug\Tetris V1.2.pdb (Partial PDB)

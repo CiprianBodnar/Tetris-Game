@@ -124,20 +124,20 @@ bool Forms[7][4][4][4] =
 	{ 1,0,0,0 },
 	{ 1,1,0,0 } },
 
-	{ { 0,0,0,0 },
+	{ { 1,1,1,0 },
+	{ 1,0,0,0 },
 	{ 0,0,0,0 },
-	{ 1,1,1,0 },
-	{ 1,0,0,0 } },
+	{ 0,0,0,0 } },
 
 	{ { 0,0,0,0 },
 	{ 1,1,0,0 },
 	{ 0,1,0,0 },
 	{ 0,1,0,0 } },
 
-	{ { 0,0,0,0 },
+	{ { 0,1,0,0 },
+	{ 1,1,1,0 },
 	{ 0,0,0,0 },
-	{ 0,0,1,0 },
-	{ 1,1,1,0 } },
+	{ 0,0,0,0 } },
 },
 	// J
 {
@@ -181,5 +181,6 @@ void drawForm(RenderWindow & window, float x, float y, Color c)
 	RectangleShape rect(Vector2f( SIZE - 2, SIZE - 2));
 	rect.setPosition(x + 1, y + 1);
 	rect.setFillColor(c);
+	rect.setOrigin(9, 9);
 	window.draw(rect);
 }

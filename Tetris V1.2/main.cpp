@@ -8,6 +8,15 @@
 #include <cstdlib>
 #include <sstream>
 
+struct P
+{
+	bool dataAUX[4][4];
+	Vector2f auxFormPos;
+	int colorAUX;
+}v[100];
+
+
+
 void fill(bool data[4][4], int rotate, int whichForm)
 {
 	for (int i = 0; i < 4; i++)
@@ -26,20 +35,10 @@ bool isValid(int xOffset , int yOffset ,bool data[4][4],int posX,int posY,float 
 {
 	for (int y = 0; y < 4; y++)
 		for (int x = 0; x < 4; x++)
-			if ((data[y][x] && (posX + x + xOffset >= windowX /SIZE )) || (data[y][x] && (posX + x + xOffset <0)) || (data[y][x] && (posY+y+yOffset>=windowY/SIZE)))
+			if ((data[y][x] && (posX + x + xOffset >= windowX /SIZE-10 )) || (data[y][x] && (posX + x + xOffset <10)) || (data[y][x] && (posY+y+yOffset>=windowY/SIZE-11)))
 				return false;
 	return true;
 }
-
-
-
-struct P
-{
-	bool dataAUX[4][4];
-	Vector2f auxFormPos;
-	int colorAUX;
-}v[100];
-
 
 
 
@@ -49,7 +48,7 @@ using namespace sf;
 int main()
 {
 	//Setarile ferestrei
-	RenderWindow window(VideoMode(1020, 720), "Tetris V1.2");
+	RenderWindow window(VideoMode(800, 720), "Tetris V1.2");
 	
 	//window.setFramerateLimit(30);
 	Vector2f windowActualSize,formPos;
@@ -59,14 +58,17 @@ int main()
 	formPos.y = 0;
 	
 	// Incarc iaginiile
-	Texture tetrisPices, background;
+	Texture tetrisPices, background,ingame;
 	tetrisPices.loadFromFile("IMG/tiles.png");
 	background.loadFromFile("IMG/p3.png");
+	ingame.loadFromFile("IMG/11.jpg");
 	// Background si fiecare patratel
 	Sprite spriteBack(background);
+	Sprite in(ingame);
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
 	Sprite Form[5][5] = { blue };
 	// Delimitez fiecare patratel din imagine "mama"
+	//in.setPosition(formPos.x, 50);
 	blue.setTextureRect(IntRect(0, 0, 18, 18));
 	red.setTextureRect(IntRect(18, 0, 18, 18));
 	green.setTextureRect(IntRect(36, 0, 18, 18));
@@ -77,11 +79,13 @@ int main()
 
 	//declaratii
 	int optionMenu = -1;
-	bool data[4][4], lock = 1, lock2 = 0, Table[51][36] = { 0 };
-	int rotate;
+	bool data[4][4], lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1;
+	int rotate, Table[25][20] = { 0 };
 	int whichForm;
 	int nr = 0;
 	int color;
+	
+	// program
 	while (window.isOpen())
 	{
 		
@@ -100,20 +104,77 @@ int main()
 					if (event.key.code == Keyboard::Up)
 						menu.MoveUp();
 					if (event.key.code == Keyboard::F)
-						lock = 1;
-
+					{
+						//lock = 1;
+						for (int i = 0; i < 25; i++)
+						{
+							for (int j = 0; j < 20; j++)
+								cout << Table[i][j]<<" ";
+							cout << endl;
+						}
+					}
 					if (event.key.code == Keyboard::Left)
-						if(isValid(-1,0,data,formPos.x,formPos.y,windowActualSize.x,windowActualSize.y))
-						formPos.x--;
+						if (isValid(-1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y))
+						{
+					
+							formPos.x--;
+							cout << formPos.x << endl;
+							int j = 0;
+							while (j < 20)
+							{
+								for (int i = 0; i < 25; i++)
+									if (Table[i][j] == 0)
+										if (Table[i][j + 1] == 1)
+											Table[i][j] = 1;
+								for (int i = 0; i < 25; i++)
+									if (Table[i][j]== 1)
+										if (Table[i][j+1] == 0)
+											Table[i][j] = 0;
+								j++;
+							}
+						}
 					if (event.key.code == Keyboard::Right)
 					{
-						if(isValid(1,0,data,formPos.x,formPos.y,windowActualSize.x,windowActualSize.y))
+						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y))
+						{
+							
 							formPos.x++;
+							cout << formPos.x << endl;
+							int j = 19;
+							while (j > 0)
+							{
+								for (int i = 0; i < 25; i++)
+									if (Table[i][j] == 0)
+										if (Table[i][j - 1] == 1)
+											Table[i][j] = 1;
+								for (int i = 0; i < 25; i++)
+									if (Table[i][j] == 1)
+										if (Table[i][j - 1] == 0)
+											Table[i][j ] = 0;
+								j--;
+							}
+						}
+
 					}
-					if(event.key.code==Keyboard::Down)
-						if (isValid(0, 1, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y))
+					if (event.key.code == Keyboard::Down) {
+						if (isValid(0, 1, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && exit == 1)
+						{
 							formPos.y++;
-					
+							cout << formPos.y << endl;
+							int i = 24;
+							while (i > 0)
+							{
+								for (int j = 0; j < 20; j++)
+									if (Table[i - 1][j] == 1)
+										Table[i][j] = 1;
+								for (int j = 0; j < 20; j++)
+									if (Table[i][j] == 1 && Table[i - 1][j] == 0)
+										Table[i][j] = 0;
+								i--;
+							}
+						}
+						
+					} 
 					if (event.key.code == Keyboard::Return)
 					{
 						if (menu.GetPressItem() == 0)
@@ -132,40 +193,52 @@ int main()
 
 		
 			//OP 1
-			if (optionMenu == 0)
-			{
-				window.clear(Color::Black);
-				for(int k=1;k<=nr;k++)
-				for (int i = 0; i<4; i++)
-					for (int j = 0; j<4; j++)
-						if (v[k].dataAUX[i][j] == 1)
-							drawForm(window, (j + v[k].auxFormPos.x)*SIZE, (i + v[k].auxFormPos.y)*SIZE, colors[v[k].colorAUX]);
-				if (lock == 1)
-					generate(rotate, whichForm, color, data);
-				lock = 0;
-				for (int i = 0; i<4; i++)
-					for (int j = 0; j<4; j++)
-						if (data[i][j] == 1)
-							drawForm(window, (j +formPos.x)*SIZE, (i + formPos.y)*SIZE, colors[color]);
-				
-				if (formPos.y + 4 == windowActualSize.y / SIZE)
-				{
-					
-					lock = 1;
-					nr++;
-					v[nr].auxFormPos.x = formPos.x;
-					v[nr].auxFormPos.y = formPos.y;
-					for (int i = 0; i < 4; i++)
-						for (int j = 0; j < 4; j++)
-							v[nr].dataAUX[i][j] = data[i][j];
-					v[nr].colorAUX = color;
-					formPos.x = windowActualSize.x / SIZE / 2;
-					formPos.y = 0;
+		if (optionMenu == 0)
+		{
+			window.clear(Color::Black);
+			window.draw(in);
 
-					
-				}
+			if (lock == 1)
+			{
+				generate(rotate, whichForm, color, data);
+				for (int i = 0; i < 4; i++)
+					for (int j = 0; j < 4; j++)
+					{
+						
+						if (data[i][j] == 1)
+							Table[i][j + (int)formPos.x/2 ] = data[i][j];
+					}
+			}
+			lock = 0;
+			
+			
+			for (int i = 0; i < 25; i++)
+				for (int j = 0; j < 20; j++)
+					if (Table[i][j] == 1 || Table[i][j]==2)
+						drawForm(window, (j )*SIZE, (i ) * SIZE, color[colors]);
+			
+			/*for (int i = 0; i < 4; i++)
+				for (int j = 0; j < 4; j++)
+					if (data[i][j])
+						drawForm(window, (j + windowActualSize.x / SIZE / 2), windowActualSize.y / SIZE / 2, color[colors]);*/
+			if (formPos.y == windowActualSize.y/SIZE-20)
+			{
+				
+				lock = 1;
+				for (int i = 0; i < 25; i++)
+					for (int j = 0; j < 20; j++)
+						if (Table[i][j])
+							Table[i][j] = 2;
+						
+
+				formPos.x = windowActualSize.x / SIZE / 2;
+				formPos.y = 0;
 				
 			}
+
+			
+		
+		}
 
 			// OP2
 			if (optionMenu == 1)

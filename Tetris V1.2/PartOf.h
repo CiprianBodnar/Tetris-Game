@@ -70,17 +70,17 @@ public:
 		return true;
 	}
 
-	void draw(RenderWindow & window)
+	/*void draw(RenderWindow & window)
 	{
 		for (int i = 0; i < 4; i++)
 			for (int m = 0; m < 4; m++)
 				if (data[i][m])
 				{
 					
-					drawForm(window, (m + 20) * SIZE, (i +20) * SIZE, colors[color]);
+					drawForm(window, (m + 20) * SIZE, (i +20) * SIZE, Form[color]);
 					
 				}
-	}
+	}*/
 
 	int getPosX()
 	{
