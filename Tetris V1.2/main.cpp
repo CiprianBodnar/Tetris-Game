@@ -8,22 +8,13 @@
 #include <cstdlib>
 #include <sstream>
 
-struct P
-{
-	bool dataAUX[4][4];
-	Vector2f auxFormPos;
-	int colorAUX;
-}v[100];
-
-
-
-void fill(bool data[4][4], int rotate, int whichForm)
+void fill(int data[4][4], int rotate, int whichForm)
 {
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			data[i][j] = Forms[whichForm][rotate][i][j];
 }
-void generate(int &rotate, int &whichForm,int &color,bool data[4][4],bool activate_rotate)
+void generate(int &rotate, int &whichForm,int &color,int data[4][4],bool activate_rotate)
 {
 	whichForm = rand() % 7;
 	rotate = rand() % 4;
@@ -32,17 +23,56 @@ void generate(int &rotate, int &whichForm,int &color,bool data[4][4],bool activa
 	fill(data, rotate, whichForm);
 }
 
-bool isValid(int xOffset , int yOffset ,bool data[4][4],int posX,int posY,float windowX,float windowY)
+bool isValid(int xOffset , int yOffset ,int data[4][4],int posX,int posY,float windowX,float windowY)
 {
 	for (int y = 0; y < 4; y++)
 		for (int x = 0; x < 4; x++)
-			if ((data[y][x] && (posX + x + xOffset >= windowX /SIZE-10 )) || (data[y][x] && (posX + x + xOffset <10)) || (data[y][x] && (posY+y+yOffset>=windowY/SIZE-11)))
+			if ((data[y][x] && (posX + x + xOffset >= windowX /SIZE-LIMIT_RL )) || (data[y][x] && (posX + x + xOffset <LIMIT_RL)) || (data[y][x] && (posY+y+yOffset>=windowY/SIZE-LIMIT_H1)))
 				return false;
 	return true;
 }
+void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formPos,Vector2f windowActualSize)
+{
+	if (isValid(0, 1, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && exit == 1)
+	{
 
 
+		formPos.y++;
+		
+		int i = 24;
+		 int free = 1;
+		while (i > 0 && exit == 1)
+		{
+			
+			for (int j = 0; j < TableW; j++)
+				if (Table[i - 1][j] == 1 || Table[i - 1][j] == 3)
+					if (Table[i][j] == 2)
+					{
+						free = 0;
+						exit = 0;
 
+					}
+
+			if (free == 1)
+			{
+				for (int j = 0; j < TableW; j++)
+				{
+					if (Table[i - 1][j] == 1)
+						Table[i][j] = 1;
+					if (Table[i - 1][j] == 3)
+						Table[i][j] = 3;
+				}
+				for (int j = 0; j < TableW; j++)
+					if ((Table[i][j] == 1 || Table[i][j] == 3) && (Table[i - 1][j] == 0 || Table[i - 1][j] == 2))
+						Table[i][j] = 0;
+			}
+
+
+			i--;
+		}
+
+	}
+}
 
 using namespace std;
 using namespace sf;
@@ -59,11 +89,13 @@ int main()
 	formPos.y = 0;
 	
 	// Incarc iaginiile
-	Texture tetrisPices, background,ingame;
+	Texture tetrisPices, background,ingame,gameover;
 	tetrisPices.loadFromFile("IMG/tiles.png");
 	background.loadFromFile("IMG/p3.png");
 	ingame.loadFromFile("IMG/11.jpg");
+	gameover.loadFromFile("IMG/game-over.jpg");
 	// Background si fiecare patratel
+	Sprite over(gameover);
 	Sprite spriteBack(background);
 	Sprite in(ingame);
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
@@ -80,17 +112,22 @@ int main()
 
 	//declaratii
 	int optionMenu = -1;
-	bool data[4][4], lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1,activate_rotate=0;
+	int data[4][4];
+	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0;
 	int rotate, Table[25][20] = { 0 };
 	int whichForm;
 	int nr = 0;
 	int color;
-	
+	float timer=0, delay = 0.3f;
+	Clock clock;
 	// program
 	while (window.isOpen())
 	{
-		
+		float time = clock.getElapsedTime().asSeconds();
+		clock.restart();
+		timer += time;
 		Event event;
+
 		while (window.pollEvent(event))
 		{
 			
@@ -106,9 +143,9 @@ int main()
 						menu.MoveUp();
 					if (event.key.code == Keyboard::F)
 					{
-						for (int i = 0; i < 25; i++)
+						for (int i = 0; i < TableH; i++)
 						{
-							for (int j = 0; j < 20; j++)
+							for (int j = 0; j < TableW; j++)
 								cout << Table[i][j]<<" ";
 							cout << endl;
 						}
@@ -116,20 +153,42 @@ int main()
 					if (event.key.code == Keyboard::Space)
 					{
 						
-						cout << rotate << endl;
+						int iaux, jaux;
+						activate_rotate = 1;
+						if (rotate == 3)
+							rotate = 0;
+						else
+							rotate++;
+						for(int i=0;i<TableH;i++)
+							for(int j=0;j<TableW;j++)
+								if(Table[i][j]==3)
+								{
+									iaux = i;
+									jaux = j;
+								}
+						for (int i = 0; i < TableH; i++)
+							for (int j = 0; j < TableW; j++)
+								if (Table[i][j]==1 || Table[i][j]==3)
+									Table[i][j] = 0;
+						for (int i = 0; i < 4; i++)
+							for (int j = 0; j < 4; j++)
+							{
 
+								if (Forms[whichForm][rotate][i][j] == 1 || Forms[whichForm][rotate][i][j]==3)
+									Table[i+iaux][j+jaux] = Forms[whichForm][rotate][i][j];
+							}
 					}
 					if (event.key.code == Keyboard::Left)
-						if (isValid(-1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y))
+						if (isValid(-1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && free==1)
 						{
 					
 							formPos.x--;
 							cout << formPos.x << endl;
 							int j = 0;
 							free = 1;
-							while (j < 20 && free==1)
+							while (j < TableW && free==1)
 							{
-								for (int i = 0; i < 25; i++)
+								for (int i = 0; i < TableH; i++)
 									if (Table[i][j] == 2)
 										if (Table[i][j +1] == 1)
 										{
@@ -138,14 +197,14 @@ int main()
 								if (free == 1)
 								{
 									
-									for (int i = 0; i < 25; i++)
+									for (int i = 0; i < TableH; i++)
 										if(Table[i][j]==0)
 										if (Table[i][j + 1] == 1)
 											
 											Table[i][j] = 1;
-									for (int i = 0; i < 25; i++)
+									for (int i = 0; i < TableH; i++)
 										if (Table[i][j] == 1)
-											if (Table[i][j + 1] == 0)
+											if (Table[i][j + 1] == 0 || Table[i][j+1]==2)
 												Table[i][j] = 0;
 									j++;
 								}
@@ -153,7 +212,8 @@ int main()
 						}
 					if (event.key.code == Keyboard::Right)
 					{
-						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y))
+						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) )
+							
 						{
 							
 							formPos.x++;
@@ -163,19 +223,19 @@ int main()
 							while (j > 0 && free==1)
 							{
 								
-								for(int i=0;i<25;i++)
+								for(int i=0;i<TableH;i++)
 									if(Table[i][j]==2)
 										if (Table[i][j - 1] == 1)
 											free = 0;
 								if (free != 0)
 								{
-									for (int i = 1; i < 25; i++)
+									for (int i = 1; i < TableH; i++)
 										if (Table[i][j - 1] == 1)	
 											Table[i][j] = 1;
 										
-									for (int i = 0; i < 25; i++)
+									for (int i = 0; i < TableH; i++)
 										if (Table[i][j] == 1)
-											if (Table[i][j - 1] == 0)
+											if (Table[i][j - 1] == 0 || Table[i][j-1]==2)
 												Table[i][j] = 0;
 								}
 								
@@ -196,8 +256,8 @@ int main()
 							while (i > 0 && exit==1)
 							{
 								
-								for (int j = 0; j < 20; j++)
-									if (Table[i - 1][j] == 1)
+								for (int j = 0; j < TableW; j++)
+									if (Table[i - 1][j] == 1 || Table[i-1][j]==3)
 										if (Table[i][j] == 2)
 										{
 											free = 0;
@@ -207,11 +267,15 @@ int main()
 										
 								if (free == 1)
 								{
-									for (int j = 0; j < 20; j++)
-										if(Table[i-1][j]==1)
-										Table[i][j] = 1;
-									for (int j = 0; j < 20; j++)
-										if (Table[i][j] == 1 && Table[i - 1][j] == 0)
+									for (int j = 0; j < TableW; j++)
+									{
+										if (Table[i - 1][j] == 1)
+											Table[i][j] = 1;
+										if (Table[i - 1][j] == 3)
+											Table[i][j] = 3;
+									}
+									for (int j = 0; j < TableW; j++)
+										if ((Table[i][j] == 1 || Table[i][j]>=3) &&( Table[i - 1][j] == 0 || Table[i-1][j]==2))
 											Table[i][j] = 0;
 								}
 									
@@ -233,57 +297,75 @@ int main()
 							window.close();
 					}
 				}
-
+				
 
 
 			}
 
 		
 			//OP 1
-		if (optionMenu == 0)
+		if (optionMenu == 0 )
 		{
-			window.clear(Color::Black);
-			window.draw(in);
-
-			if (lock == 1)
+			if (pass == 1)
 			{
-				generate(rotate, whichForm, color, data,activate_rotate);
-				for (int i = 0; i < 4; i++)
-					for (int j = 0; j < 4; j++)
-					{
-						
-						if (data[i][j] == 1)
-							Table[i][j + (int)formPos.x/2 ] = data[i][j];
-					}
-			}
-			lock = 0;
-			
-			
-			for (int i = 0; i < 25; i++)
-				for (int j = 0; j < 20; j++)
+				window.clear();
+				window.draw(in);
+
+				for (int i = 0; i < TableW; i++)
+					if (Table[2][i] == 2)
+						pass = 0;
+				if (lock == 1 && pass == 1)
 				{
-					if (Table[i][j] == 1 || Table[i][j]==2)
-						drawForm(window, (j)*SIZE, (i)* SIZE, color[colors]);
+					generate(rotate, whichForm, color, data, activate_rotate);
+					for (int i = 0; i < 4; i++)
+						for (int j = 0; j < 4; j++)
+						{
 
-				
+
+							if (data[i][j] == 1 || data[i][j] == 3)
+								Table[i][j + (int)formPos.x / 2] = data[i][j];
+						}
 				}
-			
-			if (formPos.y == windowActualSize.y/SIZE-15 || exit==0)
-			{
-				cout << "intra";
-				lock = 1;
-				exit = 1;
-				for (int i = 0; i < 25; i++)
-					for (int j = 0; j < 20; j++)
-						if (Table[i][j])
-							Table[i][j] = 2;
-						
+				lock = 0;
 
-				formPos.x = windowActualSize.x / SIZE / 2;
-				formPos.y = 0;
-				
+
+				for (int i = 0; i < TableH; i++)
+					for (int j = 0; j < TableW; j++)
+					{
+						if (Table[i][j] == 1 || Table[i][j] == 2 || Table[i][j] == 3)
+							drawForm(window, (j)*SIZE, (i)* SIZE, color[colors]);
+
+
+					}
+				if (timer > delay)
+				{
+					gravity(data, exit, Table, formPos, windowActualSize);
+					timer = 0;
+				}
+
+				if (formPos.y == windowActualSize.y / SIZE - LIMIT_H2 || exit == 0)
+				{
+
+					lock = 1;
+					exit = 1;
+					for (int i = 0; i < TableH; i++)
+						for (int j = 0; j < TableW; j++)
+							if (Table[i][j] == 1 || Table[i][j] == 3)
+								Table[i][j] = 2;
+
+
+					formPos.x = windowActualSize.x / SIZE / 2;
+					formPos.y = 0;
+
+				}
+
 			}
-
+			//OP 1.1
+			if (pass == 0)
+			{
+				window.clear();
+				window.draw(over);
+			}
 			
 		
 		}
