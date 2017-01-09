@@ -16,6 +16,7 @@ void fill(int data[4][4], int rotate, int whichForm)
 }
 void generate(int &rotate, int &whichForm,int &color,int data[4][4],bool activate_rotate)
 {
+	srand(time(NULL));
 	whichForm = rand() % 7;
 	rotate = rand() % 4;
 	
@@ -73,7 +74,26 @@ void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formP
 
 	}
 }
+void check(int Table[TableH][TableW],int &score)
+{
 
+	for (int i = TableH-1; i >=0; i--)
+	{
+		bool checkt = 1;
+		for (int j = 0; j < TableW; j++)
+			if (Table[i][j] == 0)
+				checkt = 0;
+		if (checkt == 1)
+		{
+			for (int k = i; k > 0; k--)
+				for (int t = 0; t < TableW; t++)
+					Table[k][t] = Table[k - 1][t];
+			score = score + 100;
+			cout << score << endl;
+		}
+	}
+	
+}
 using namespace std;
 using namespace sf;
 int main()
@@ -112,14 +132,18 @@ int main()
 
 	//declaratii
 	int optionMenu = -1;
-	int data[4][4];
+	int data[4][4],next[4][4];
 	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0;
-	int rotate, Table[25][20] = { 0 };
-	int whichForm;
+	int rotate=rand()%4, Table[25][20] = { 0 };
+	int whichForm=rand()%7,score=0;
 	int nr = 0;
 	int color;
 	float timer=0, delay = 0.3f;
 	Clock clock;
+	srand(time ( NULL));
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			next[i][j] = Forms[whichForm][rotate][i][j];
 	// program
 	while (window.isOpen())
 	{
@@ -179,37 +203,42 @@ int main()
 							}
 					}
 					if (event.key.code == Keyboard::Left)
-						if (isValid(-1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && free==1)
+					{
+						free = 1;
+						if (isValid(-1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && free == 1)
 						{
-					
+
 							formPos.x--;
 							cout << formPos.x << endl;
 							int j = 0;
 							free = 1;
-							while (j < TableW && free==1)
+							while (j < TableW && free == 1)
 							{
 								for (int i = 0; i < TableH; i++)
 									if (Table[i][j] == 2)
-										if (Table[i][j +1] == 1)
-										{
+										if (Table[i][j + 1] == 1 || Table[i][j + 1] == 3)
 											free = 0;
-										}
+
 								if (free == 1)
 								{
-									
+
 									for (int i = 0; i < TableH; i++)
-										if(Table[i][j]==0)
-										if (Table[i][j + 1] == 1)
-											
-											Table[i][j] = 1;
+										if (Table[i][j] == 0)
+										{
+											if (Table[i][j + 1] == 1)
+												Table[i][j] = 1;
+											if (Table[i][j + 1] == 3)
+												Table[i][j] = 3;
+										}
 									for (int i = 0; i < TableH; i++)
-										if (Table[i][j] == 1)
-											if (Table[i][j + 1] == 0 || Table[i][j+1]==2)
+										if (Table[i][j] == 1 || Table[i][j] == 3)
+											if (Table[i][j + 1] == 0 || Table[i][j + 1] == 2)
 												Table[i][j] = 0;
 									j++;
 								}
 							}
 						}
+					}
 					if (event.key.code == Keyboard::Right)
 					{
 						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) )
@@ -220,21 +249,25 @@ int main()
 							cout << formPos.x << endl;
 							int j = 19;
 							free = 1;
-							while (j > 0 && free==1)
+							while (j >0 && free==1)
 							{
 								
 								for(int i=0;i<TableH;i++)
 									if(Table[i][j]==2)
-										if (Table[i][j - 1] == 1)
+										if (Table[i][j - 1] == 1 || Table[i][j]==3)
 											free = 0;
 								if (free != 0)
 								{
 									for (int i = 1; i < TableH; i++)
-										if (Table[i][j - 1] == 1)	
+									{
+										if (Table[i][j - 1] == 1)
 											Table[i][j] = 1;
+										if (Table[i][j - 1] == 3)
+											Table[i][j] = 3;
+									}
 										
 									for (int i = 0; i < TableH; i++)
-										if (Table[i][j] == 1)
+										if (Table[i][j] == 1 || Table[i][j]==3)
 											if (Table[i][j - 1] == 0 || Table[i][j-1]==2)
 												Table[i][j] = 0;
 								}
@@ -314,45 +347,72 @@ int main()
 				for (int i = 0; i < TableW; i++)
 					if (Table[2][i] == 2)
 						pass = 0;
+				//NEW FORM	
 				if (lock == 1 && pass == 1)
 				{
-					generate(rotate, whichForm, color, data, activate_rotate);
+					
 					for (int i = 0; i < 4; i++)
 						for (int j = 0; j < 4; j++)
-						{
-
-
+							data[i][j] = next[i][j];
+					for (int i = 0; i < 4; i++)
+						for (int j = 0; j < 4; j++)
 							if (data[i][j] == 1 || data[i][j] == 3)
 								Table[i][j + (int)formPos.x / 2] = data[i][j];
-						}
+					generate(rotate, whichForm, color, next, activate_rotate);
+
 				}
 				lock = 0;
-
-
+				//bug fix
+				for (int i = 0; i < TableH; i++)
+					if (Table[i][0] == 1)
+						for (int j = 0; j < TableH; j++)
+							if (Table[j][TableW-1] == 1)
+								Table[j][TableW-1]= 0;
+				//draW
 				for (int i = 0; i < TableH; i++)
 					for (int j = 0; j < TableW; j++)
 					{
 						if (Table[i][j] == 1 || Table[i][j] == 2 || Table[i][j] == 3)
-							drawForm(window, (j)*SIZE, (i)* SIZE, color[colors]);
+							drawForm(window, (j+TABLE_POS)*SIZE, (i)* SIZE,red);
 
 
 					}
+				for (int i = 0; i < 4; i++)
+					for (int j = 0; j < 4; j++)
+						if (next[i][j] == 1 || next[i][j] == 3)
+							drawForm(window,(  TABLE_POS+10+j)*SIZE, (TableH+ 1+ i)*SIZE, red);
+				// table border
+				for (int i = 0; i < 25; i++)
+				{
+					drawForm2(window, (TABLE_POS - 1)*SIZE, i * SIZE);
+					drawForm2(window, (TABLE_POS+TableW)*SIZE, i * SIZE);
+				}
+				for(int i=-1;i<=20;i++)
+					drawForm2(window, (i+TABLE_POS)*SIZE, TableH* SIZE);
+				// gravity
 				if (timer > delay)
 				{
 					gravity(data, exit, Table, formPos, windowActualSize);
 					timer = 0;
 				}
-
+				//exit & score
 				if (formPos.y == windowActualSize.y / SIZE - LIMIT_H2 || exit == 0)
 				{
-
+					generate(rotate, whichForm, color, data, activate_rotate);
+					for (int i = 0; i < 4; i++)
+					{
+						for (int j = 0; j < 4; j++)
+							cout << data[i][j] << " ";
+						cout << endl;
+					}
+					cout << endl;
 					lock = 1;
 					exit = 1;
 					for (int i = 0; i < TableH; i++)
 						for (int j = 0; j < TableW; j++)
 							if (Table[i][j] == 1 || Table[i][j] == 3)
 								Table[i][j] = 2;
-
+					check(Table,score);
 
 					formPos.x = windowActualSize.x / SIZE / 2;
 					formPos.y = 0;

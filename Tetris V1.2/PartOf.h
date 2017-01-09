@@ -30,7 +30,7 @@ public:
 	{
 		
 		int g = (rand() % 7) * 4;
-		shapeIndex = (ShapeIndexes)g;
+		//shapeIndex = (ShapeIndexes)g;
 		color = g / 4;
 	
 		fillData();
