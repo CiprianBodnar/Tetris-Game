@@ -14,8 +14,8 @@ Menu::Menu(float width,float height)
 	menuText[0].setString("Play");
 	menuText[0].setPosition(Vector2f(width / 4, height / (MAX_OF_MENU_ITEMS+1) * 1.25));
 	menuText[0].setOrigin(Vector2f(menuText[0].getOrigin().x + menuText[0].getPosition().y / 2, menuText[0].getOrigin().y));
-	cout << menuText[0].getOrigin().x << " " << menuText[0].getOrigin().y << endl;
-	cout << menuText[0].getPosition().x << " " << menuText[0].getPosition().y << endl;
+	//cout << menuText[0].getOrigin().x << " " << menuText[0].getOrigin().y << endl;
+	//cout << menuText[0].getPosition().x << " " << menuText[0].getPosition().y << endl;
 
 
 	menuText[1].setFillColor(sf::Color::White);
@@ -23,8 +23,8 @@ Menu::Menu(float width,float height)
 	menuText[1].setString("Instructiuni");
 	menuText[1].setPosition(Vector2f(width / 4, height / (MAX_OF_MENU_ITEMS+1) * 1.5));
 	menuText[1].setOrigin(Vector2f(menuText[1].getOrigin().x + menuText[1].getPosition().y / 2, menuText[1].getOrigin().y));
-	cout << menuText[1].getOrigin().x << " " << menuText[1].getOrigin().y << endl;
-	cout << menuText[1].getPosition().x << " " << menuText[1].getPosition().y << endl;
+	//cout << menuText[1].getOrigin().x << " " << menuText[1].getOrigin().y << endl;
+	//cout << menuText[1].getPosition().x << " " << menuText[1].getPosition().y << endl;
 
 	menuText[2].setFillColor(sf::Color::White);
 	//menuText[2].setOrigin(Vector2f(width / 2, height / 2));
@@ -32,8 +32,8 @@ Menu::Menu(float width,float height)
 	menuText[2].setString("Iesire");
 	menuText[2].setPosition(Vector2f(width / 4, height / (MAX_OF_MENU_ITEMS+1) * 1.75));
 	menuText[2].setOrigin(Vector2f(menuText[2].getOrigin().x + menuText[2].getPosition().y / 2, menuText[2].getOrigin().y));
-	cout << menuText[0].getOrigin().x << " " << menuText[0].getOrigin().y << endl;
-	cout << menuText[0].getPosition().x << " " << menuText[0].getPosition().y << endl;
+//	cout << menuText[0].getOrigin().x << " " << menuText[0].getOrigin().y << endl;
+//	cout << menuText[0].getPosition().x << " " << menuText[0].getPosition().y << endl;
 }
 
 

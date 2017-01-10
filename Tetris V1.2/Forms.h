@@ -172,6 +172,7 @@ int Forms[7][4][4][4] =
 #define TableH 25
 #define TableW 20
 #define TABLE_POS 10
+#define SCORE_POS_ON_GAME 37
 Color colors[5] = {
 Color::Red,
 Color::Green,

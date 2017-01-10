@@ -7,7 +7,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
-
+#include<string>
 void fill(int data[4][4], int rotate, int whichForm)
 {
 	for (int i = 0; i < 4; i++)
@@ -42,6 +42,12 @@ void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formP
 		
 		int i = 24;
 		 int free = 1;
+		 for (int i = 0; i<TableH; i++)
+			 for (int j = 0; j < TableW; j++)
+				 if (Table[i][j] == 1 || Table[i][j] == 3)
+					 if (Table[i + 1][j] == 2)
+						 exit = 0;
+			 
 		while (i > 0 && exit == 1)
 		{
 			
@@ -80,20 +86,26 @@ void check(int Table[TableH][TableW],int &score)
 	for (int i = TableH-1; i >=0; i--)
 	{
 		bool checkt = 1;
-		for (int j = 0; j < TableW; j++)
-			if (Table[i][j] == 0)
-				checkt = 0;
-		if (checkt == 1)
+		while (checkt==1)
 		{
-			for (int k = i; k > 0; k--)
-				for (int t = 0; t < TableW; t++)
-					Table[k][t] = Table[k - 1][t];
-			score = score + 100;
-			cout << score << endl;
+
+
+			for (int j = 0; j < TableW; j++)
+				if (Table[i][j] == 0)
+					checkt = 0;
+			if (checkt == 1)
+			{
+				for (int k = i; k > 0; k--)
+					for (int t = 0; t < TableW; t++)
+						Table[k][t] = Table[k - 1][t];
+				score = score + 100;
+			}
 		}
 	}
 	
 }
+
+
 using namespace std;
 using namespace sf;
 int main()
@@ -110,9 +122,12 @@ int main()
 	
 	// Incarc iaginiile
 	Texture tetrisPices, background,ingame,gameover;
+	Text Score,Score_text,Time,Time2,Time_text,time_min,car,PlayerScore,playerscoretext;
+	Font font;
+	font.loadFromFile("fonts/Springmarch-Roman.otf");
 	tetrisPices.loadFromFile("IMG/tiles.png");
 	background.loadFromFile("IMG/p3.png");
-	ingame.loadFromFile("IMG/11.jpg");
+	ingame.loadFromFile("IMG/13.jpg");
 	gameover.loadFromFile("IMG/game-over.jpg");
 	// Background si fiecare patratel
 	Sprite over(gameover);
@@ -120,6 +135,8 @@ int main()
 	Sprite in(ingame);
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
 	Sprite Form[5][5] = { blue };
+
+	
 	// Delimitez fiecare patratel din imagine "mama"
 	//in.setPosition(formPos.x, 50);
 	blue.setTextureRect(IntRect(0, 0, 18, 18));
@@ -136,10 +153,11 @@ int main()
 	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0;
 	int rotate=rand()%4, Table[25][20] = { 0 };
 	int whichForm=rand()%7,score=0;
-	int nr = 0;
+	int nr = 1;
 	int color;
-	float timer=0, delay = 0.3f;
-	Clock clock;
+	int sec = 0, min = 0;
+	float timer=0, delay = 0.3f,timer2=0;
+	Clock clock,clock2;
 	srand(time ( NULL));
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -212,6 +230,11 @@ int main()
 							cout << formPos.x << endl;
 							int j = 0;
 							free = 1;
+							for (int i = 0; i < TableH; i++)
+								for (int j = 0; j < TableW; j++)
+									if (Table[i][j] == 1 || Table[i][j] == 3)
+										if (Table[i][j - 1] == 2)
+											free = 0;
 							while (j < TableW && free == 1)
 							{
 								for (int i = 0; i < TableH; i++)
@@ -249,6 +272,11 @@ int main()
 							cout << formPos.x << endl;
 							int j = 19;
 							free = 1;
+							for (int i = 0; i < TableH; i++)
+								for (int j = 0; j < TableW; j++)
+									if (Table[i][j] == 1 || Table[i][j] == 3)
+										if (Table[i][j + 1] == 2)
+											free = 0;
 							while (j >0 && free==1)
 							{
 								
@@ -267,9 +295,12 @@ int main()
 									}
 										
 									for (int i = 0; i < TableH; i++)
-										if (Table[i][j] == 1 || Table[i][j]==3)
-											if (Table[i][j - 1] == 0 || Table[i][j-1]==2)
+										if (Table[i][j] == 1 || Table[i][j] == 3)
+										{
+											if (Table[i][j - 1] == 0 || Table[i][j - 1] == 2)
 												Table[i][j] = 0;
+											
+										}
 								}
 								
 								j--;
@@ -286,6 +317,13 @@ int main()
 							cout << formPos.y << endl;
 							int i = 24;
 							free = 1;
+							for (int i = 0; i<TableH; i++)
+								for (int j = 0; j < TableW; j++)
+									if (Table[i][j] == 1 || Table[i][j] == 3)
+										if (Table[i + 1][j] == 2)
+											exit = 0;
+								
+							
 							while (i > 0 && exit==1)
 							{
 								
@@ -330,8 +368,6 @@ int main()
 							window.close();
 					}
 				}
-				
-
 
 			}
 
@@ -366,7 +402,7 @@ int main()
 				for (int i = 0; i < TableH; i++)
 					if (Table[i][0] == 1)
 						for (int j = 0; j < TableH; j++)
-							if (Table[j][TableW-1] == 1)
+							if (Table[j][TableW-1] == 1 || Table[j][TableW-1]==3)
 								Table[j][TableW-1]= 0;
 				//draW
 				for (int i = 0; i < TableH; i++)
@@ -380,32 +416,76 @@ int main()
 				for (int i = 0; i < 4; i++)
 					for (int j = 0; j < 4; j++)
 						if (next[i][j] == 1 || next[i][j] == 3)
-							drawForm(window,(  TABLE_POS+10+j)*SIZE, (TableH+ 1+ i)*SIZE, red);
-				// table border
-				for (int i = 0; i < 25; i++)
-				{
-					drawForm2(window, (TABLE_POS - 1)*SIZE, i * SIZE);
-					drawForm2(window, (TABLE_POS+TableW)*SIZE, i * SIZE);
-				}
-				for(int i=-1;i<=20;i++)
-					drawForm2(window, (i+TABLE_POS)*SIZE, TableH* SIZE);
+							drawForm(window,(  TABLE_POS+23+j)*SIZE, (TableH-5+ i)*SIZE, red);
+				
+				
 				// gravity
 				if (timer > delay)
 				{
 					gravity(data, exit, Table, formPos, windowActualSize);
 					timer = 0;
 				}
-				//exit & score
+				//exit & score & time
+				string Sc,tm,tmin;
+				
+				
+				Sc=to_string(score);
+				Score.setString(Sc);
+				Score.setFont(font);
+				Score.setFillColor(Color::Black);
+				Score.setPosition(Vector2f((SCORE_POS_ON_GAME-1)*SIZE, TableW*2));
+				Score_text.setString("Score:");
+				Score_text.setFont(font);
+				Score_text.setFillColor(Color::Black);
+				Score_text.setPosition(Vector2f((TableW + 10)*SIZE, TableW*2));
+				Time_text.setString("Time:");
+				Time_text.setFont(font);
+				Time_text.setFillColor(Color::Black);
+				Time_text.setPosition(Vector2f((TableW + 10)*SIZE , TableW * 8));
+				
+				
+
+				tm = to_string(clock2.getElapsedTime().asSeconds());
+				Time.setString(tm[0]);
+				Time.setFillColor(Color::Black);
+				Time.setFont(font);
+				Time.setPosition(Vector2f((SCORE_POS_ON_GAME-1)*SIZE, TableW * 8));
+				if(tm[1]!='.')
+				{
+					tm = to_string(clock2.getElapsedTime().asSeconds());
+					Time2.setString(tm[1]);
+					Time2.setFillColor(Color::Black);
+					Time2.setFont(font);
+					Time2.setPosition(Vector2f((SCORE_POS_ON_GAME)*SIZE, TableW * 8));
+					window.draw(Time2);
+				}
+				if (tm[0] == '6' && tm[1] == '0')
+				{
+					min++;
+					clock2.restart();
+					
+					
+				}
+				car.setString(":");
+				car.setFillColor(Color::Black);
+				car.setFont(font);
+				car.setPosition(Vector2f((SCORE_POS_ON_GAME - 2)*SIZE, TableW * 8));
+				tmin = to_string(min);
+				time_min.setString(tmin);
+				time_min.setFillColor(Color::Black);
+				time_min.setFont(font);
+				time_min.setPosition(Vector2f((SCORE_POS_ON_GAME - 3)*SIZE, TableW * 8));
+
+				window.draw(Score);
+				window.draw(Score_text);
+				window.draw(Time_text);
+				window.draw(Time);
+				window.draw(time_min);
+				window.draw(car);
 				if (formPos.y == windowActualSize.y / SIZE - LIMIT_H2 || exit == 0)
 				{
+					score = score + min+1;
 					generate(rotate, whichForm, color, data, activate_rotate);
-					for (int i = 0; i < 4; i++)
-					{
-						for (int j = 0; j < 4; j++)
-							cout << data[i][j] << " ";
-						cout << endl;
-					}
-					cout << endl;
 					lock = 1;
 					exit = 1;
 					for (int i = 0; i < TableH; i++)
@@ -413,18 +493,30 @@ int main()
 							if (Table[i][j] == 1 || Table[i][j] == 3)
 								Table[i][j] = 2;
 					check(Table,score);
-
+					
 					formPos.x = windowActualSize.x / SIZE / 2;
 					formPos.y = 0;
 
 				}
 
-			}
+	 		}
 			//OP 1.1
 			if (pass == 0)
 			{
+				String playerScore = to_string(score);
+				PlayerScore.setFillColor(Color::Black);
+				PlayerScore.setFont(font);
+				PlayerScore.setPosition(Vector2f(SIZE*25, SIZE*12));
+				PlayerScore.setString(playerScore);
+
+				playerscoretext.setFillColor(Color::Black);
+				playerscoretext.setFont(font);
+				playerscoretext.setString("Your score:");
+				playerscoretext.setPosition(Vector2f(SIZE*15 , SIZE * 12));
 				window.clear();
 				window.draw(over);
+				window.draw(playerscoretext);
+				window.draw(PlayerScore);
 			}
 			
 		
