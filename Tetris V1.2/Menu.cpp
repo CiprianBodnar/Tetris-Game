@@ -20,7 +20,7 @@ Menu::Menu(float width,float height)
 
 	menuText[1].setFillColor(sf::Color::White);
 	menuText[1].setFont(font);
-	menuText[1].setString("Instructiuni");
+	menuText[1].setString("Best score:");
 	menuText[1].setPosition(Vector2f(width / 4, height / (MAX_OF_MENU_ITEMS+1) * 1.5));
 	menuText[1].setOrigin(Vector2f(menuText[1].getOrigin().x + menuText[1].getPosition().y / 2, menuText[1].getOrigin().y));
 	//cout << menuText[1].getOrigin().x << " " << menuText[1].getOrigin().y << endl;

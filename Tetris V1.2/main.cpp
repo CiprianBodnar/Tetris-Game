@@ -8,6 +8,14 @@
 #include <cstdlib>
 #include <sstream>
 #include<string>
+#include<fstream>
+using namespace std;
+using namespace sf;
+
+
+
+
+
 void fill(int data[4][4], int rotate, int whichForm)
 {
 	for (int i = 0; i < 4; i++)
@@ -105,11 +113,22 @@ void check(int Table[TableH][TableW],int &score)
 	
 }
 
+void sortare(int v[4])
+{
+	for(int i=0;i<9;i++)
+		for(int j=i+1;j<10;j++)
+			if (v[i] < v[j])
+			{
+				int aux = v[i];
+				v[i] = v[j];
+				v[j] = aux;
+			}
+}
 
-using namespace std;
-using namespace sf;
+
 int main()
 {
+	
 	//Setarile ferestrei
 	RenderWindow window(VideoMode(800, 720), "Tetris V1.2");
 	
@@ -121,16 +140,18 @@ int main()
 	formPos.y = 0;
 	
 	// Incarc iaginiile
-	Texture tetrisPices, background,ingame,gameover;
+	Texture tetrisPices, background,ingame,gameover,scoreBack;
 	Text Score,Score_text,Time,Time2,Time_text,time_min,car,PlayerScore,playerscoretext;
 	Font font;
 	font.loadFromFile("fonts/Springmarch-Roman.otf");
+	scoreBack.loadFromFile("IMG/5.jpg");
 	tetrisPices.loadFromFile("IMG/tiles.png");
 	background.loadFromFile("IMG/p3.png");
-	ingame.loadFromFile("IMG/13.jpg");
+	ingame.loadFromFile("IMG/14.jpg");
 	gameover.loadFromFile("IMG/game-over.jpg");
 	// Background si fiecare patratel
 	Sprite over(gameover);
+	Sprite ScoreBack(scoreBack);
 	Sprite spriteBack(background);
 	Sprite in(ingame);
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
@@ -150,18 +171,22 @@ int main()
 	//declaratii
 	int optionMenu = -1;
 	int data[4][4],next[4][4];
-	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0;
+	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0, go = 1;
 	int rotate=rand()%4, Table[25][20] = { 0 };
 	int whichForm=rand()%7,score=0;
-	int nr = 1;
 	int color;
-	int sec = 0, min = 0;
+	int  min = 0, v[10] = { 0 };
+	int nr = 0;
 	float timer=0, delay = 0.3f,timer2=0;
 	Clock clock,clock2;
 	srand(time ( NULL));
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			next[i][j] = Forms[whichForm][rotate][i][j];
+
+
+	
+	
 	// program
 	while (window.isOpen())
 	{
@@ -191,6 +216,31 @@ int main()
 								cout << Table[i][j]<<" ";
 							cout << endl;
 						}
+					}
+					if (event.key.code == Keyboard::Escape)
+					{
+						if (optionMenu == -1)
+							window.close();
+						if (pass == 0)
+						{
+							optionMenu = -1;
+							pass = 1;
+							go = 1;
+						}
+						if (optionMenu == 0)
+						{
+							optionMenu = -1;
+							for (int i = 0; i <= TableH; i++)
+								for (int j = 0; j <= TableW; j++)
+									Table[i][j] = 0;
+							go = 1;
+						}
+						if (optionMenu == 1)
+						{
+							optionMenu = -1;
+							go = 1;
+						}
+						
 					}
 					if (event.key.code == Keyboard::Space)
 					{
@@ -438,7 +488,7 @@ int main()
 				Score_text.setFont(font);
 				Score_text.setFillColor(Color::Black);
 				Score_text.setPosition(Vector2f((TableW + 10)*SIZE, TableW*2));
-				Time_text.setString("Time:");
+				Time_text.setString("Time: ");
 				Time_text.setFont(font);
 				Time_text.setFillColor(Color::Black);
 				Time_text.setPosition(Vector2f((TableW + 10)*SIZE , TableW * 8));
@@ -466,7 +516,7 @@ int main()
 					
 					
 				}
-				car.setString(":");
+				car.setString(".");
 				car.setFillColor(Color::Black);
 				car.setFont(font);
 				car.setPosition(Vector2f((SCORE_POS_ON_GAME - 2)*SIZE, TableW * 8));
@@ -513,6 +563,23 @@ int main()
 				playerscoretext.setFont(font);
 				playerscoretext.setString("Your score:");
 				playerscoretext.setPosition(Vector2f(SIZE*15 , SIZE * 12));
+				if (lock2 == 1)
+				{
+					ifstream f2("new.txt");
+
+					for (int i = 0; i < 9; i++)
+						f2 >> v[i];
+					
+
+					v[9] = score;
+					sortare(v);
+					sortare(v);
+
+					ofstream g("new.txt");
+					for (int i = 0; i < 9; i++)
+						g << v[i]<<endl;
+				}
+				lock2 = 0;
 				window.clear();
 				window.draw(over);
 				window.draw(playerscoretext);
@@ -525,7 +592,45 @@ int main()
 			// OP2
 			if (optionMenu == 1)
 			{
-				window.clear(Color::White);
+				window.clear();
+				window.draw(ScoreBack);
+				int v2[10];
+				if (go == 1)
+				{
+					ifstream f2("new.txt");
+					
+					
+					while (!f2.eof())
+					{
+						f2>> v2[nr];
+						nr++;
+					}
+				}
+				go = 0;
+				Text S[10],Contor[10],Punct[10];
+				String SS[10],ContorS[10];
+				int Spos = 150;
+				for (int i = 0; i < 9; i++)
+				{
+					ContorS[i] = to_string(i + 1);
+					Contor[i].setFillColor(Color::Black);
+					Contor[i].setFont(font);
+					Contor[i].setString(ContorS[i]);
+					Contor[i].setPosition(Vector2f(55, Spos));
+					Punct[i].setFillColor(Color::Black);
+					Punct[i].setFont(font);
+					Punct[i].setString(".");
+					Punct[i].setPosition(Vector2f(72, Spos));
+					SS[i] = to_string(v2[i]);
+					S[i].setString(SS[i]);
+					S[i].setFillColor(Color::Black);
+					S[i].setFont(font);
+					S[i].setPosition(Vector2f(85, Spos));
+					window.draw(S[i]);
+					window.draw(Contor[i]);
+					window.draw(Punct[i]);
+					Spos = Spos + 50;
+				}
 			}
 
 			if (optionMenu == -1)
