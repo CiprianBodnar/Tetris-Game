@@ -189,12 +189,3 @@ void drawForm(RenderWindow & window, float x, float y,Sprite s)
 	s.setOrigin(9, 9);
 	window.draw(s);
 }
-void drawForm2(RenderWindow & window, float x, float y)
-{
-
-	RectangleShape rect(Vector2f(SIZE , SIZE ));
-	rect.setFillColor(Color::Black);
-	rect.setPosition(x + 1, y + 1);
-	rect.setOrigin(9, 9);
-	window.draw(rect);
-}

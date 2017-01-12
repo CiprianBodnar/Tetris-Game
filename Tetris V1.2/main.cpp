@@ -1,9 +1,10 @@
 
 #include <SFML\Graphics.hpp>
+#include<SFML\Audio.hpp>
 #include<iostream>
 #include "movent.h"
 #include "Menu.h"
-#include "PartOf.h"
+#include "Forms.h"
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
@@ -11,16 +12,19 @@
 #include<fstream>
 using namespace std;
 using namespace sf;
-
+bool l= 1;
 
 
 
 
 void fill(int data[4][4], int rotate, int whichForm)
 {
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			data[i][j] = Forms[whichForm][rotate][i][j];
+	
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				data[i][j] = Forms[whichForm][rotate][i][j];
+			
+				
 }
 void generate(int &rotate, int &whichForm,int &color,int data[4][4],bool activate_rotate)
 {
@@ -70,16 +74,22 @@ void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formP
 
 			if (free == 1)
 			{
+				 l = 1;
 				for (int j = 0; j < TableW; j++)
 				{
 					if (Table[i - 1][j] == 1)
+					{
 						Table[i][j] = 1;
+						l = 0;
+					}
 					if (Table[i - 1][j] == 3)
 						Table[i][j] = 3;
+					
 				}
 				for (int j = 0; j < TableW; j++)
 					if ((Table[i][j] == 1 || Table[i][j] == 3) && (Table[i - 1][j] == 0 || Table[i - 1][j] == 2))
 						Table[i][j] = 0;
+				
 			}
 
 
@@ -125,7 +135,6 @@ void sortare(int v[4])
 			}
 }
 
-
 int main()
 {
 	
@@ -147,7 +156,7 @@ int main()
 	scoreBack.loadFromFile("IMG/5.jpg");
 	tetrisPices.loadFromFile("IMG/tiles.png");
 	background.loadFromFile("IMG/p3.png");
-	ingame.loadFromFile("IMG/14.jpg");
+	ingame.loadFromFile("IMG/33.jpg");
 	gameover.loadFromFile("IMG/game-over.jpg");
 	// Background si fiecare patratel
 	Sprite over(gameover);
@@ -156,8 +165,13 @@ int main()
 	Sprite in(ingame);
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
 	Sprite Form[5][5] = { blue };
-
 	
+	Music music,musicCol;
+	if (!music.openFromFile("songs/OMFG_-_Wonderful.ogg"))
+		cout << "ERORR";
+	
+	if (!musicCol.openFromFile("songs/col.ogg"))
+		cout << "Col Music ERORR";
 	// Delimitez fiecare patratel din imagine "mama"
 	//in.setPosition(formPos.x, 50);
 	blue.setTextureRect(IntRect(0, 0, 18, 18));
@@ -170,11 +184,11 @@ int main()
 
 	//declaratii
 	int optionMenu = -1;
-	int data[4][4],next[4][4];
-	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0, go = 1;
-	int rotate=rand()%4, Table[25][20] = { 0 };
+	int data[4][4], next[4][4], stop[4][4] = { 0 }, auxStop[4][4] = { 0 };
+	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0, go = 1,deseneaza=0,deseneaza2=0,spaceactivate=1,Song=1;
+	int rotate=rand()%4, Table[25][20] = { 0 },auxf;
 	int whichForm=rand()%7,score=0;
-	int color;
+	int color,m=1;
 	int  min = 0, v[10] = { 0 };
 	int nr = 0;
 	float timer=0, delay = 0.3f,timer2=0;
@@ -183,10 +197,9 @@ int main()
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			next[i][j] = Forms[whichForm][rotate][i][j];
-
-
 	
-	
+
+	auxf = whichForm;
 	// program
 	while (window.isOpen())
 	{
@@ -203,7 +216,21 @@ int main()
 			
 				if (Event::KeyPressed == event.type)
 				{
-					
+					if (event.key.code == Keyboard::M)
+					{
+						if (m == -1)
+						{
+							ingame.loadFromFile("IMG/33.jpg");
+							music.play();
+						}
+						if (m == 1)
+						{
+							ingame.loadFromFile("IMG/333.jpg");
+							music.stop();
+						}
+						m = m*-1;
+
+					}
 					if (event.key.code == Keyboard::Down)
 						menu.MoveDown();
 					if (event.key.code == Keyboard::Up)
@@ -216,6 +243,7 @@ int main()
 								cout << Table[i][j]<<" ";
 							cout << endl;
 						}
+						cout << endl;
 					}
 					if (event.key.code == Keyboard::Escape)
 					{
@@ -223,52 +251,77 @@ int main()
 							window.close();
 						if (pass == 0)
 						{
+							formPos.x = windowActualSize.x / SIZE / 2;
+							formPos.y = 0;
 							optionMenu = -1;
-							pass = 1;
+							pass=1;
 							go = 1;
 						}
 						if (optionMenu == 0)
 						{
+							formPos.x = windowActualSize.x / SIZE / 2;
+							formPos.y = 0;
 							optionMenu = -1;
 							for (int i = 0; i <= TableH; i++)
 								for (int j = 0; j <= TableW; j++)
 									Table[i][j] = 0;
 							go = 1;
+							music.stop();
 						}
 						if (optionMenu == 1)
 						{
+							formPos.x = windowActualSize.x / SIZE / 2;
+							formPos.y = 0;
 							optionMenu = -1;
 							go = 1;
 						}
 						
 					}
+					if(spaceactivate==1)
 					if (event.key.code == Keyboard::Space)
 					{
-						
-						int iaux, jaux;
-						activate_rotate = 1;
-						if (rotate == 3)
-							rotate = 0;
-						else
-							rotate++;
-						for(int i=0;i<TableH;i++)
-							for(int j=0;j<TableW;j++)
-								if(Table[i][j]==3)
-								{
-									iaux = i;
-									jaux = j;
-								}
-						for (int i = 0; i < TableH; i++)
-							for (int j = 0; j < TableW; j++)
-								if (Table[i][j]==1 || Table[i][j]==3)
-									Table[i][j] = 0;
+						spaceactivate = 0;
+						bool este1 = 1;
 						for (int i = 0; i < 4; i++)
 							for (int j = 0; j < 4; j++)
-							{
+								if (stop[i][j] == 1)
+									este1 = 0;
+						if (este1 == 1)
+						{
+							
+							for (int i = 0; i < 4; i++)
+								for (int j = 0; j < 4; j++)
+									stop[i][j] = data[i][j];
+							for (int i = 0; i < TableH; i++)
+								for (int j = 0; j < TableW; j++)
+									if (Table[i][j] == 1 || Table[i][j] == 3)
+										Table[i][j] = 0;
+							lock = 1;
+							
+							deseneaza = 1;
+							formPos.x = windowActualSize.x / SIZE / 2;
+							formPos.y = 0;
+						}
+						else
+						{
+							
+							for(int i=0;i<4;i++)
+								for (int j = 0; j < 4; j++)
+								{
+									auxStop[i][j] = stop[i][j];
+									stop[i][j] = data[i][j];
+								}
+									for (int i = 0; i < TableH; i++)
+										for (int j = 0; j < TableW; j++)
+											if (Table[i][j] == 1 || Table[i][j] == 3)
+												Table[i][j] = 0;
+									formPos.x = windowActualSize.x / SIZE / 2;
+									formPos.y = 0;
+									lock = 0;
+									deseneaza2 = 1;
+								
+						}
 
-								if (Forms[whichForm][rotate][i][j] == 1 || Forms[whichForm][rotate][i][j]==3)
-									Table[i+iaux][j+jaux] = Forms[whichForm][rotate][i][j];
-							}
 					}
 					if (event.key.code == Keyboard::Left)
 					{
@@ -314,6 +367,9 @@ int main()
 					}
 					if (event.key.code == Keyboard::Right)
 					{
+						/*for (int i = 0; i < TableH; i++)
+							if (Table[i][0] == 1 || Table[i][0] == 3)
+								Table[i][0] = 0;*/
 						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) )
 							
 						{
@@ -343,7 +399,7 @@ int main()
 										if (Table[i][j - 1] == 3)
 											Table[i][j] = 3;
 									}
-										
+									
 									for (int i = 0; i < TableH; i++)
 										if (Table[i][j] == 1 || Table[i][j] == 3)
 										{
@@ -351,6 +407,7 @@ int main()
 												Table[i][j] = 0;
 											
 										}
+									
 								}
 								
 								j--;
@@ -358,7 +415,8 @@ int main()
 						}
 
 					}
-					if (event.key.code == Keyboard::Down) {
+					if (event.key.code == Keyboard::Down) 
+					{
 						if (isValid(0, 1, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && exit == 1)
 						{
 							
@@ -388,18 +446,26 @@ int main()
 										
 								if (free == 1)
 								{
+									 l = 1;
 									for (int j = 0; j < TableW; j++)
 									{
 										if (Table[i - 1][j] == 1)
+										{
 											Table[i][j] = 1;
+											l = 0;
+										}
 										if (Table[i - 1][j] == 3)
 											Table[i][j] = 3;
+										
 									}
 									for (int j = 0; j < TableW; j++)
-										if ((Table[i][j] == 1 || Table[i][j]>=3) &&( Table[i - 1][j] == 0 || Table[i-1][j]==2))
+										if ((Table[i][j] == 1 || Table[i][j]>=3) &&( Table[i - 1][j] == 0 || Table[i-1][j]==2) )
 											Table[i][j] = 0;
-								}
 									
+										
+											
+								}
+								
 								
 								i--;
 							}
@@ -425,6 +491,12 @@ int main()
 			//OP 1
 		if (optionMenu == 0 )
 		{
+			if (Song == 1)
+			{
+				music.play();
+				music.setVolume(15);
+			}
+			Song = 0;
 			if (pass == 1)
 			{
 				window.clear();
@@ -433,6 +505,7 @@ int main()
 				for (int i = 0; i < TableW; i++)
 					if (Table[2][i] == 2)
 						pass = 0;
+				
 				//NEW FORM	
 				if (lock == 1 && pass == 1)
 				{
@@ -440,13 +513,19 @@ int main()
 					for (int i = 0; i < 4; i++)
 						for (int j = 0; j < 4; j++)
 							data[i][j] = next[i][j];
+					
 					for (int i = 0; i < 4; i++)
 						for (int j = 0; j < 4; j++)
 							if (data[i][j] == 1 || data[i][j] == 3)
 								Table[i][j + (int)formPos.x / 2] = data[i][j];
+					
+					
+					
 					generate(rotate, whichForm, color, next, activate_rotate);
-
+					
 				}
+				
+						
 				lock = 0;
 				//bug fix
 				for (int i = 0; i < TableH; i++)
@@ -468,7 +547,25 @@ int main()
 						if (next[i][j] == 1 || next[i][j] == 3)
 							drawForm(window,(  TABLE_POS+23+j)*SIZE, (TableH-5+ i)*SIZE, red);
 				
-				
+				if(deseneaza==1)
+					for (int i = 0; i<4; i++)
+						for (int j = 0; j<4; j++)
+							if (stop[i][j] == 1 || stop[i][j] == 3)
+								drawForm(window, (TABLE_POS-7  + j)*SIZE, (TableH -5 + i)*SIZE, red);
+				if (deseneaza2 == 1)
+				{
+					
+					for (int i = 0; i < 4; i++)
+						for (int j = 0; j < 4; j++)
+							if (stop[i][j] == 1 || stop[i][j] == 3)
+								drawForm(window, (TABLE_POS-7 + j)*SIZE, (TableH - 5 + i)*SIZE, red);
+					for (int i = 0; i < 4; i++)
+						for (int j = 0; j < 4; j++)
+							if (auxStop[i][j] == 1 || auxStop[i][j] == 3)
+								Table[i][j + (int)formPos.x / 2] = auxStop[i][j];
+					lock = 0;
+				}
+				deseneaza2 = 0;
 				// gravity
 				if (timer > delay)
 				{
@@ -482,29 +579,29 @@ int main()
 				Sc=to_string(score);
 				Score.setString(Sc);
 				Score.setFont(font);
-				Score.setFillColor(Color::Black);
+				Score.setFillColor(Color::White);
 				Score.setPosition(Vector2f((SCORE_POS_ON_GAME-1)*SIZE, TableW*2));
 				Score_text.setString("Score:");
 				Score_text.setFont(font);
-				Score_text.setFillColor(Color::Black);
+				Score_text.setFillColor(Color::White);
 				Score_text.setPosition(Vector2f((TableW + 10)*SIZE, TableW*2));
 				Time_text.setString("Time: ");
 				Time_text.setFont(font);
-				Time_text.setFillColor(Color::Black);
+				Time_text.setFillColor(Color::White);
 				Time_text.setPosition(Vector2f((TableW + 10)*SIZE , TableW * 8));
 				
 				
 
 				tm = to_string(clock2.getElapsedTime().asSeconds());
 				Time.setString(tm[0]);
-				Time.setFillColor(Color::Black);
+				Time.setFillColor(Color::White);
 				Time.setFont(font);
 				Time.setPosition(Vector2f((SCORE_POS_ON_GAME-1)*SIZE, TableW * 8));
 				if(tm[1]!='.')
 				{
 					tm = to_string(clock2.getElapsedTime().asSeconds());
 					Time2.setString(tm[1]);
-					Time2.setFillColor(Color::Black);
+					Time2.setFillColor(Color::White);
 					Time2.setFont(font);
 					Time2.setPosition(Vector2f((SCORE_POS_ON_GAME)*SIZE, TableW * 8));
 					window.draw(Time2);
@@ -517,12 +614,12 @@ int main()
 					
 				}
 				car.setString(".");
-				car.setFillColor(Color::Black);
+				car.setFillColor(Color::White);
 				car.setFont(font);
 				car.setPosition(Vector2f((SCORE_POS_ON_GAME - 2)*SIZE, TableW * 8));
 				tmin = to_string(min);
 				time_min.setString(tmin);
-				time_min.setFillColor(Color::Black);
+				time_min.setFillColor(Color::White);
 				time_min.setFont(font);
 				time_min.setPosition(Vector2f((SCORE_POS_ON_GAME - 3)*SIZE, TableW * 8));
 
@@ -534,7 +631,11 @@ int main()
 				window.draw(car);
 				if (formPos.y == windowActualSize.y / SIZE - LIMIT_H2 || exit == 0)
 				{
+					
+					musicCol.play();
+					auxf = whichForm;
 					score = score + min+1;
+					spaceactivate = 1;
 					generate(rotate, whichForm, color, data, activate_rotate);
 					lock = 1;
 					exit = 1;
@@ -553,6 +654,7 @@ int main()
 			//OP 1.1
 			if (pass == 0)
 			{
+				music.stop();
 				String playerScore = to_string(score);
 				PlayerScore.setFillColor(Color::Black);
 				PlayerScore.setFont(font);
@@ -592,6 +694,7 @@ int main()
 			// OP2
 			if (optionMenu == 1)
 			{
+				music.stop();
 				window.clear();
 				window.draw(ScoreBack);
 				int v2[10];
