@@ -1,6 +1,7 @@
 
 #include <SFML\Graphics.hpp>
 #include<SFML\Audio.hpp>
+
 #include<iostream>
 #include "movent.h"
 #include "Menu.h"
@@ -44,7 +45,7 @@ bool isValid(int xOffset , int yOffset ,int data[4][4],int posX,int posY,float w
 				return false;
 	return true;
 }
-void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formPos,Vector2f windowActualSize)
+void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formPos,Vector2f windowActualSize,int &bug)
 {
 	if (isValid(0, 1, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) && exit == 1)
 	{
@@ -86,6 +87,16 @@ void gravity(int data[4][4],bool &exit,int Table[TableH][TableW],Vector2f &formP
 						Table[i][j] = 3;
 					
 				}
+				
+				for (int j = 0; j < TableW; j++)
+					if (Table[0][j] == 1)
+					{
+						Table[0][j] = 0;
+						Table[4][j] = 1;
+						
+					}
+
+				
 				for (int j = 0; j < TableW; j++)
 					if ((Table[i][j] == 1 || Table[i][j] == 3) && (Table[i - 1][j] == 0 || Table[i - 1][j] == 2))
 						Table[i][j] = 0;
@@ -155,8 +166,8 @@ int main()
 	font.loadFromFile("fonts/Springmarch-Roman.otf");
 	scoreBack.loadFromFile("IMG/5.jpg");
 	tetrisPices.loadFromFile("IMG/tiles.png");
-	background.loadFromFile("IMG/p3.png");
-	ingame.loadFromFile("IMG/33.jpg");
+	background.loadFromFile("IMG/p33.jpg");
+	ingame.loadFromFile("IMG/gameBg2.jpg");
 	gameover.loadFromFile("IMG/game-over.jpg");
 	// Background si fiecare patratel
 	Sprite over(gameover);
@@ -166,12 +177,16 @@ int main()
 	Sprite blue(tetrisPices), red(tetrisPices), green(tetrisPices), yellow(tetrisPices);
 	Sprite Form[5][5] = { blue };
 	
-	Music music,musicCol;
+	Music music,musicCol,musicMenu;
+	musicCol.setVolume(15);
+	musicMenu.setVolume(25);
 	if (!music.openFromFile("songs/OMFG_-_Wonderful.ogg"))
 		cout << "ERORR";
 	
 	if (!musicCol.openFromFile("songs/col.ogg"))
 		cout << "Col Music ERORR";
+	if (!musicMenu.openFromFile("songs/menu.ogg"))
+		cout << "Error";
 	// Delimitez fiecare patratel din imagine "mama"
 	//in.setPosition(formPos.x, 50);
 	blue.setTextureRect(IntRect(0, 0, 18, 18));
@@ -185,12 +200,9 @@ int main()
 	//declaratii
 	int optionMenu = -1;
 	int data[4][4], next[4][4], stop[4][4] = { 0 }, auxStop[4][4] = { 0 };
-	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0, go = 1,deseneaza=0,deseneaza2=0,spaceactivate=1,Song=1;
-	int rotate=rand()%4, Table[25][20] = { 0 },auxf;
-	int whichForm=rand()%7,score=0;
-	int color,m=1;
-	int  min = 0, v[10] = { 0 };
-	int nr = 0;
+	bool lock = 1, lock2 = 1, exit = 1, free = 1, pass = 1, activate_rotate = 0, go = 1, deseneaza = 0, deseneaza2 = 0, spaceactivate = 1, Song = 1, down = 1;
+
+	int nr = 0, min = 0, v[10] = { 0 }, color, m = 1, whichForm = rand() % 7, score = 0, rotate = rand() % 4, Table[25][20] = { 0 }, auxf,bug=0;
 	float timer=0, delay = 0.3f,timer2=0;
 	Clock clock,clock2;
 	srand(time ( NULL));
@@ -220,31 +232,30 @@ int main()
 					{
 						if (m == -1)
 						{
-							ingame.loadFromFile("IMG/33.jpg");
+							ingame.loadFromFile("IMG/gameBg2.jpg");
 							music.play();
 						}
 						if (m == 1)
 						{
-							ingame.loadFromFile("IMG/333.jpg");
+							ingame.loadFromFile("IMG/GameBg.jpg");
 							music.stop();
 						}
 						m = m*-1;
 
 					}
 					if (event.key.code == Keyboard::Down)
-						menu.MoveDown();
-					if (event.key.code == Keyboard::Up)
-						menu.MoveUp();
-					if (event.key.code == Keyboard::F)
 					{
-						for (int i = 0; i < TableH; i++)
-						{
-							for (int j = 0; j < TableW; j++)
-								cout << Table[i][j]<<" ";
-							cout << endl;
-						}
-						cout << endl;
+						musicMenu.play();
+						menu.MoveDown();
+						m = -1;
 					}
+					if (event.key.code == Keyboard::Up)
+					{
+						m = -1;
+						musicMenu.play();
+						menu.MoveUp();
+					}
+					
 					if (event.key.code == Keyboard::Escape)
 					{
 						if (optionMenu == -1)
@@ -256,6 +267,17 @@ int main()
 							optionMenu = -1;
 							pass=1;
 							go = 1;
+							for (int i = 0; i <= TableH; i++)
+								for (int j = 0; j <= TableW; j++)
+									Table[i][j] = 0;
+							for (int i = 0; i < 4; i++)
+								for (int j = 0; j < 4; j++)
+									stop[i][j] = 0;
+							clock2.restart();
+							score = 0;
+							exit = 0;
+							Song = 1;
+							m = -1;
 						}
 						if (optionMenu == 0)
 						{
@@ -265,8 +287,16 @@ int main()
 							for (int i = 0; i <= TableH; i++)
 								for (int j = 0; j <= TableW; j++)
 									Table[i][j] = 0;
+							for (int i = 0; i < 4; i++)
+								for (int j = 0; j < 4; j++)
+									stop[i][j] = 0;
 							go = 1;
+							exit = 0;
 							music.stop();
+							clock2.restart();
+							score = 0;
+							Song = 1;
+							m = -1;
 						}
 						if (optionMenu == 1)
 						{
@@ -274,6 +304,7 @@ int main()
 							formPos.y = 0;
 							optionMenu = -1;
 							go = 1;
+							Song = 1;
 						}
 						
 					}
@@ -330,7 +361,6 @@ int main()
 						{
 
 							formPos.x--;
-							cout << formPos.x << endl;
 							int j = 0;
 							free = 1;
 							for (int i = 0; i < TableH; i++)
@@ -367,15 +397,13 @@ int main()
 					}
 					if (event.key.code == Keyboard::Right)
 					{
-						/*for (int i = 0; i < TableH; i++)
-							if (Table[i][0] == 1 || Table[i][0] == 3)
-								Table[i][0] = 0;*/
+						
 						if (isValid(1, 0, data, formPos.x, formPos.y, windowActualSize.x, windowActualSize.y) )
 							
 						{
 							
 							formPos.x++;
-							cout << formPos.x << endl;
+							
 							int j = 19;
 							free = 1;
 							for (int i = 0; i < TableH; i++)
@@ -422,7 +450,7 @@ int main()
 							
 							
 								formPos.y++;
-							cout << formPos.y << endl;
+							
 							int i = 24;
 							free = 1;
 							for (int i = 0; i<TableH; i++)
@@ -456,7 +484,13 @@ int main()
 										}
 										if (Table[i - 1][j] == 3)
 											Table[i][j] = 3;
-										
+										for (int j = 0; j < TableW; j++)
+											if (Table[0][j] == 1)
+											{
+												Table[0][j] = 0;
+												Table[4][j] = 1;
+
+											}
 									}
 									for (int j = 0; j < TableW; j++)
 										if ((Table[i][j] == 1 || Table[i][j]>=3) &&( Table[i - 1][j] == 0 || Table[i-1][j]==2) )
@@ -491,6 +525,13 @@ int main()
 			//OP 1
 		if (optionMenu == 0 )
 		{
+			if (down == 1)
+			{
+				formPos.x = windowActualSize.x / SIZE / 2;
+				formPos.y = 0;
+
+			}
+			down = 0;
 			if (Song == 1)
 			{
 				music.play();
@@ -514,12 +555,10 @@ int main()
 						for (int j = 0; j < 4; j++)
 							data[i][j] = next[i][j];
 					
-					for (int i = 0; i < 4; i++)
+				for (int i = 0; i < 4; i++)
 						for (int j = 0; j < 4; j++)
 							if (data[i][j] == 1 || data[i][j] == 3)
 								Table[i][j + (int)formPos.x / 2] = data[i][j];
-					
-					
 					
 					generate(rotate, whichForm, color, next, activate_rotate);
 					
@@ -569,7 +608,7 @@ int main()
 				// gravity
 				if (timer > delay)
 				{
-					gravity(data, exit, Table, formPos, windowActualSize);
+					gravity(data, exit, Table, formPos, windowActualSize,bug);
 					timer = 0;
 				}
 				//exit & score & time
@@ -631,7 +670,7 @@ int main()
 				window.draw(car);
 				if (formPos.y == windowActualSize.y / SIZE - LIMIT_H2 || exit == 0)
 				{
-					
+					bug = 0;
 					musicCol.play();
 					auxf = whichForm;
 					score = score + min+1;
@@ -675,7 +714,7 @@ int main()
 
 					v[9] = score;
 					sortare(v);
-					sortare(v);
+					
 
 					ofstream g("new.txt");
 					for (int i = 0; i < 9; i++)
